@@ -12,7 +12,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create   # ?? ???? create
+      ddl-auto: create   # 초기 개발에는 create
     show-sql: true
     properties:
       hibernate:
