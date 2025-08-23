@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: temp
+    name: soboon-soboon
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}

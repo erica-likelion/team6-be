@@ -1,10 +1,10 @@
-package likelion.sajaboys.temp;
+package likelion.sajaboys.soboonsoboon;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TempApplicationTests {
+class SoboonsoboonApplicationTests {
 
 	@Test
 	void contextLoads() {
