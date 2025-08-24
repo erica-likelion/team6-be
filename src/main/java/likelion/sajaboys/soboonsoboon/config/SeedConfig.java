@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SeedConfig {
     @Bean
-    CommandLineRunner seed(UserRepository userRepository, @Value("${app.test-user-username:demo}") String username,
-                           @Value("${app.test-user-id:1}") Long id) {
+    CommandLineRunner seed(UserRepository userRepository, @Value("${app.test-user-username}") String username,
+                           @Value("${app.test-user-id}") Long id) {
         return args -> {
             if (userRepository.findByUsername(username).isEmpty()) {
                 userRepository.save(User.builder().username(username).build());

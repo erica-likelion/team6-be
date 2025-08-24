@@ -13,7 +13,7 @@ public class TestUserInterceptor implements HandlerInterceptor {
 
     private final Long testUserId;
 
-    public TestUserInterceptor(@Value("${app.test-user-id:1}") Long testUserId) {
+    public TestUserInterceptor(@Value("${app.test-user-id}") Long testUserId) {
         this.testUserId = testUserId;
     }
 
