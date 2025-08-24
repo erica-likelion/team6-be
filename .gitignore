@@ -6,6 +6,9 @@ build/
 .env
 **/.DS_Store
 
+### BUILD ###
+app.jar
+
 ### STS ###
 .apt_generated
 .classpath
