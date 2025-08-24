@@ -32,7 +32,6 @@ public class PostMessagesController {
         Long userId = CurrentUser.get();
         String content = body.get("content");
         var m = msgService.sendUserMessage(postId, userId, content);
-        // TODO: 자동 응답 비동기 트리거
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiSuccess.of(MapperUtil.toMessageResponse(m)));
     }

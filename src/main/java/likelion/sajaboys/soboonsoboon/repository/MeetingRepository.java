@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface MeetingRepository extends JpaRepository<Meeting, Long> {
     Optional<Meeting> findByPostId(Long postId);
+
+    boolean existsByPostId(Long postId);
 }
