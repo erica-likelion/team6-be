@@ -43,7 +43,7 @@ public class OpenAiEmbeddingClient {
                             s -> s.is4xxClientError() || s.is5xxServerError(),
                             r -> r.bodyToMono(String.class).defaultIfEmpty("")
                                     .flatMap(body -> {
-                                        String msg = "OpenAI embeddings error: HTTP " + r.statusCode().value() + " body=" + truncate(body, 500);
+                                        String msg = "OpenAI embeddings error: HTTP " + r.statusCode().value() + " body=" + truncate(body);
                                         return Mono.error(new RuntimeException(msg));
                                     })
                     )
@@ -65,12 +65,12 @@ public class OpenAiEmbeddingClient {
         }
     }
 
-    private static String truncate(String s, int max) {
+    private static String truncate(String s) {
         if (s == null) return "";
-        return s.length() <= max ? s : s.substring(0, max) + "...";
+        return s.length() <= 500 ? s : s.substring(0, 500) + "...";
     }
 
-    public static record EmbeddingRequest(String model, List<String> input) {
+    public record EmbeddingRequest(String model, List<String> input) {
     }
 
     public static class EmbeddingResponse {

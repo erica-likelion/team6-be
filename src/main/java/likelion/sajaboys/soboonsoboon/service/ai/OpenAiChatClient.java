@@ -43,14 +43,14 @@ public class OpenAiChatClient {
     }
 
     // DTO들
-    public static record ChatCompletionsRequest(
+    public record ChatCompletionsRequest(
             String model,
             List<Message> messages,
             @JsonProperty("max_tokens") Integer maxTokens
     ) {
     }
 
-    public static record Message(String role, String content) {
+    public record Message(String role, String content) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
