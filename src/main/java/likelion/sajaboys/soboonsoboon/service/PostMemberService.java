@@ -7,6 +7,8 @@ import likelion.sajaboys.soboonsoboon.util.ErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional(readOnly = true)
 public class PostMemberService {
@@ -43,6 +45,11 @@ public class PostMemberService {
     }
 
     public int countMembers(Long postId) {
-        return memberRepo.findAllByPostId(postId).size();
+        return (int) memberRepo.countByPostId(postId);
     }
+
+    public List<PostMember> findMembers(Long postId) {
+        return memberRepo.findAllByPostIdOrderByJoinedAtAsc(postId);
+    }
+
 }

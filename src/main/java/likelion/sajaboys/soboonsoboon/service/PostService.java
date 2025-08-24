@@ -80,4 +80,9 @@ public class PostService {
                 .build();
         return postRepo.save(p);
     }
+
+    @Transactional
+    public void touchLastMessageAt(Long postId, Instant now) {
+        postRepo.updateLastMessageAt(postId, now);
+    }
 }

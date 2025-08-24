@@ -2,6 +2,7 @@ package likelion.sajaboys.soboonsoboon.service;
 
 import likelion.sajaboys.soboonsoboon.domain.post.ChatMessage;
 import likelion.sajaboys.soboonsoboon.repository.ChatMessageRepository;
+import likelion.sajaboys.soboonsoboon.service.ai.MessagePostedEvent;
 import likelion.sajaboys.soboonsoboon.util.ApiException;
 import likelion.sajaboys.soboonsoboon.util.ErrorCode;
 import org.springframework.stereotype.Service;
@@ -13,9 +14,13 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ChatMessageService {
     private final ChatMessageRepository msgRepo;
+    private final DomainEventPublisher eventPublisher;
+    private final PostMemberService memberService;
 
-    public ChatMessageService(ChatMessageRepository msgRepo) {
+    public ChatMessageService(ChatMessageRepository msgRepo, DomainEventPublisher eventPublisher, PostMemberService memberService) {
         this.msgRepo = msgRepo;
+        this.eventPublisher = eventPublisher;
+        this.memberService = memberService;
     }
 
     @Transactional
@@ -23,13 +28,20 @@ public class ChatMessageService {
         if (content == null || content.isBlank() || content.length() > 2000) {
             throw new ApiException(ErrorCode.VALIDATION_ERROR, "invalid content length");
         }
-        ChatMessage m = ChatMessage.builder()
+
+        ChatMessage saved = msgRepo.save(ChatMessage.builder()
                 .postId(postId)
                 .senderUserId(userId)
                 .role(ChatMessage.Role.user)
                 .content(content)
-                .build();
-        return msgRepo.save(m);
+                .build());
+
+        // 커밋 후 비동기 이벤트 발행 (멤버 수 확인: 1명이면 자동 응답 트리거 생략)
+        if (memberService.countMembers(postId) >= 2) {
+            eventPublisher.publish(new MessagePostedEvent(postId, saved.getId(), userId));
+        }
+
+        return saved;
     }
 
     public List<ChatMessage> listLatest(Long postId, int limit) {
