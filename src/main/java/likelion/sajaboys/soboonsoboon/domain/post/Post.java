@@ -2,6 +2,7 @@ package likelion.sajaboys.soboonsoboon.domain.post;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -19,8 +20,9 @@ import java.time.Instant;
         })
 public class Post {
 
-    public enum Type { shopping, sharing }
-    public enum Status { open, closed }
+    public enum Type {shopping, sharing}
+
+    public enum Status {open, closed}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,15 +67,21 @@ public class Post {
     @Column(nullable = false, length = 16)
     private Status status;
 
-    @Getter @Setter
+    @Setter
     @Column(name = "last_message_at")
     private Instant lastMessageAt;
 
     @Column(name = "payment_requester_id")
     private Long paymentRequesterId;
 
+    @Setter
     @Column(name = "payment_done_user_ids_json", columnDefinition = "json")
     private String paymentDoneUserIdsJson;
+
+    @Setter
+    @Column(name = "current_members", nullable = false)
+    @Builder.Default
+    private Integer currentMembers = 0;
 
     @PrePersist
     void onCreate() {
@@ -81,9 +89,42 @@ public class Post {
         if (status == null) status = Status.open;
     }
 
-    public boolean isShopping() { return type == Type.shopping; }
-    public boolean isSharing() { return type == Type.sharing; }
 
-    public void markLastMessageNow() { this.lastMessageAt = Instant.now(); }
-    public void requestPayment(Long requesterId) { this.paymentRequesterId = requesterId; }
+    public boolean isClosed() {
+        return this.status == Status.closed;
+    }
+
+    public boolean isFull() {
+        return currentMembers != null && capacity != null && currentMembers >= capacity;
+    }
+
+    public void increaseMember() {
+        if (isFull()) throw new IllegalStateException("capacity exceeded");
+        this.currentMembers = (this.currentMembers == null ? 0 : this.currentMembers) + 1;
+    }
+
+    public void decreaseMember() {
+        int cur = (this.currentMembers == null ? 0 : this.currentMembers);
+        this.currentMembers = Math.max(0, cur - 1);
+    }
+
+    public boolean isShopping() {
+        return type == Type.shopping;
+    }
+
+    public boolean isSharing() {
+        return type == Type.sharing;
+    }
+
+    public void markLastMessageNow() {
+        this.lastMessageAt = Instant.now();
+    }
+
+    public void requestPayment(Long requesterId) {
+        this.paymentRequesterId = requesterId;
+    }
+
+    public void close() {
+        status = Status.closed;
+    }
 }

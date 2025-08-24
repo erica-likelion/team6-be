@@ -1,7 +1,6 @@
 package likelion.sajaboys.soboonsoboon.controller;
 
 import likelion.sajaboys.soboonsoboon.domain.post.Post;
-import likelion.sajaboys.soboonsoboon.service.PostMemberService;
 import likelion.sajaboys.soboonsoboon.service.reco.TextScoringRecommendationService;
 import likelion.sajaboys.soboonsoboon.util.CurrentUser;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +20,9 @@ public class PostsRecommendationController {
     private static final int CANDIDATES = 30; // 고정 후보군 크기
 
     private final TextScoringRecommendationService recoService;
-    private final PostMemberService memberService;
 
-    public PostsRecommendationController(TextScoringRecommendationService recoService,
-                                         PostMemberService memberService) {
+    public PostsRecommendationController(TextScoringRecommendationService recoService) {
         this.recoService = recoService;
-        this.memberService = memberService;
     }
 
     @GetMapping("/recommendations")
@@ -53,7 +49,7 @@ public class PostsRecommendationController {
             m.put("title", p.getTitle());
             m.put("place", p.getPlace());
             m.put("capacity", p.getCapacity());
-            m.put("currentMembers", memberService.countMembers(p.getId()));
+            m.put("currentMembers", p.getCurrentMembers());
             m.put("price", p.getPrice()); // 숫자(소수) 유지
             m.put("timeStart", p.getTimeStart()); // ISO-8601 직렬화
             m.put("timeEnd", p.getTimeEnd());

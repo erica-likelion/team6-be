@@ -1,6 +1,7 @@
 package likelion.sajaboys.soboonsoboon.service;
 
 import likelion.sajaboys.soboonsoboon.domain.post.ChatMessage;
+import likelion.sajaboys.soboonsoboon.domain.post.Post;
 import likelion.sajaboys.soboonsoboon.repository.ChatMessageRepository;
 import likelion.sajaboys.soboonsoboon.service.ai.MessagePostedEvent;
 import likelion.sajaboys.soboonsoboon.util.ApiException;
@@ -15,12 +16,12 @@ import java.util.List;
 public class ChatMessageService {
     private final ChatMessageRepository msgRepo;
     private final DomainEventPublisher eventPublisher;
-    private final PostMemberService memberService;
+    private final PostService postService;
 
-    public ChatMessageService(ChatMessageRepository msgRepo, DomainEventPublisher eventPublisher, PostMemberService memberService) {
+    public ChatMessageService(ChatMessageRepository msgRepo, DomainEventPublisher eventPublisher, PostService postService) {
         this.msgRepo = msgRepo;
         this.eventPublisher = eventPublisher;
-        this.memberService = memberService;
+        this.postService = postService;
     }
 
     @Transactional
@@ -37,7 +38,8 @@ public class ChatMessageService {
                 .build());
 
         // 커밋 후 비동기 이벤트 발행 (멤버 수 확인: 1명이면 자동 응답 트리거 생략)
-        if (memberService.countMembers(postId) >= 2) {
+        Post post = postService.getOrThrow(saved.getPostId());
+        if (post.getCurrentMembers() >= 2) {
             eventPublisher.publish(new MessagePostedEvent(postId, saved.getId(), userId));
         }
 
@@ -45,7 +47,7 @@ public class ChatMessageService {
     }
 
     public List<ChatMessage> listLatest(Long postId, int limit) {
-        // 간단 구현: Top50 고정 메서드 사용. 필요하면 limit 반영하도록 레포 확장
+        // 간단 구현: Top50 고정 메서드 사용
         return msgRepo.findTop50ByPostIdOrderByIdDesc(postId);
     }
 

@@ -30,6 +30,5 @@ app:
 openai:
   api-key: ${OPENAI_API_KEY}
   chat-model: gpt-4o
-  embedding-model: text-embedding-3-small
   timeout-seconds: 8
   max-tokens: 600

@@ -340,6 +340,13 @@ public class DummyDataSeedRunner {
                         .build());
             }
         }
+
+        for (Post p : posts) {
+            int current = (int) memberRepo.countByPostId(p.getId());
+            p.setCurrentMembers(current);
+            postRepo.save(p);
+        }
+
     }
 
     // ==================== 샘플 유틸 ====================

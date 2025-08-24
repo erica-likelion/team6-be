@@ -1,5 +1,7 @@
 package likelion.sajaboys.soboonsoboon.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import likelion.sajaboys.soboonsoboon.domain.post.Post;
 import likelion.sajaboys.soboonsoboon.repository.PostRepository;
 import likelion.sajaboys.soboonsoboon.util.ApiException;
@@ -9,11 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
 public class PostService {
+
     private final PostRepository postRepo;
+    private final ObjectMapper om = new ObjectMapper();
 
     public PostService(PostRepository postRepo) {
         this.postRepo = postRepo;
@@ -84,5 +90,48 @@ public class PostService {
     @Transactional
     public void touchLastMessageAt(Long postId, Instant now) {
         postRepo.updateLastMessageAt(postId, now);
+    }
+
+    // 결제 요청
+    @Transactional
+    public Post requestPayment(Long postId, Long requesterId) {
+        Post p = getOrThrow(postId);
+        if (p.getPaymentRequesterId() != null) {
+            throw new ApiException(ErrorCode.CONFLICT, "payment already requested");
+        }
+        p.requestPayment(requesterId);
+        return postRepo.save(p);
+    }
+
+    // 정산 완료 표시
+    @Transactional
+    public Post markPaymentDone(Long postId, Long userId) {
+        Post p = getOrThrow(postId);
+        List<Long> done = parseIds(p.getPaymentDoneUserIdsJson());
+        if (!done.contains(userId)) {
+            done.add(userId);
+            p.setPaymentDoneUserIdsJson(toJson(done));
+            postRepo.save(p);
+        }
+        return p;
+    }
+
+    private List<Long> parseIds(String json) {
+        try {
+            if (json == null || json.isBlank()) return new ArrayList<>();
+            return om.readValue(json, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    private String toJson(Object v) {
+        try {
+            if (v == null) return null;
+            return om.writeValueAsString(v);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

@@ -1,6 +1,7 @@
 package likelion.sajaboys.soboonsoboon.service.ai;
 
 import likelion.sajaboys.soboonsoboon.domain.post.ChatMessage;
+import likelion.sajaboys.soboonsoboon.domain.post.Post;
 import likelion.sajaboys.soboonsoboon.domain.post.PostMember;
 import likelion.sajaboys.soboonsoboon.repository.ChatMessageRepository;
 import likelion.sajaboys.soboonsoboon.service.PostMemberService;
@@ -45,7 +46,8 @@ public class AiReplyService {
     public void onUserMessage(MessagePostedEvent event) {
         try {
             // 이중 가드: 멤버가 2명 미만이면 스킵
-            if (memberService.countMembers(event.postId()) < 2) return;
+            Post post = postService.getOrThrow(event.postId());
+            if (post.getCurrentMembers() < 2) return;
 
             // 1) 최근 대화 컨텍스트(최신 20개 → 오름차순 정렬)
             List<ChatMessage> recentDesc = msgRepo.findTop50ByPostIdOrderByIdDesc(event.postId());
