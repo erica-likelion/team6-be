@@ -2,8 +2,13 @@ server:
   port: 8080
 
 spring:
+
   application:
     name: soboon-soboon
+
+  config:
+    import: optional:file:.env[.properties]
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
@@ -22,3 +27,6 @@ spring:
 logging:
   level:
     org.springframework: INFO
+
+app:
+  test-user-id: ${APP_TEST_USER_ID:1}
