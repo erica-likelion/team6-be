@@ -9,4 +9,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     List<ChatMessage> findTop50ByPostIdOrderByIdDesc(Long postId);
 
     List<ChatMessage> findByPostIdAndIdLessThanOrderByIdDesc(Long postId, Long beforeId);
+
+    List<ChatMessage> findByPostIdAndIdGreaterThanOrderByIdAsc(Long postId, Long afterId);
 }
