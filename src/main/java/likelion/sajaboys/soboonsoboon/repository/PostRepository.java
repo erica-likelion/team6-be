@@ -7,9 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
+import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying
     @Query("update Post p set p.lastMessageAt = :ts where p.id = :postId")
     void updateLastMessageAt(@Param("postId") Long postId, @Param("ts") Instant ts);
+
+    List<Post> findByStatusOrderByCreatedAtDesc(Post.Status status);
 }

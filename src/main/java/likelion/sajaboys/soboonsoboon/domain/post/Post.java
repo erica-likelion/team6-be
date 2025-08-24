@@ -65,6 +65,7 @@ public class Post {
     @Column(nullable = false, length = 16)
     private Status status;
 
+    @Getter @Setter
     @Column(name = "last_message_at")
     private Instant lastMessageAt;
 

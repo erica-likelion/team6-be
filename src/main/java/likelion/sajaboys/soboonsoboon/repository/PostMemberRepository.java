@@ -13,4 +13,6 @@ public interface PostMemberRepository extends JpaRepository<PostMember, Long> {
     long countByPostId(Long postId);
 
     List<PostMember> findAllByPostIdOrderByJoinedAtAsc(Long postId);
+
+    List<PostMember> findAllByUserIdOrderByJoinedAtDesc(Long userId);
 }

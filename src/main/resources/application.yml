@@ -14,7 +14,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create   # 초기 개발에는 create
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -22,14 +22,14 @@ spring:
 logging:
   level:
     org.springframework: INFO
+    likelion.sajaboys.soboonsoboon.service.reco: DEBUG
 
 app:
   test-user-id: ${TEST_USER_ID}
-  test-user-username: ${TEST_USER_USERNAME}
 
 openai:
   api-key: ${OPENAI_API_KEY}
   chat-model: gpt-4o
   embedding-model: text-embedding-3-small
   timeout-seconds: 8
-  max-tokens: 120
+  max-tokens: 600
