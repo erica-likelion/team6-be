@@ -2,19 +2,15 @@ server:
   port: 8080
 
 spring:
-
   application:
     name: soboon-soboon
-
   config:
     import: optional:file:.env[.properties]
-
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-
   jpa:
     hibernate:
       ddl-auto: create   # 초기 개발에는 create
@@ -23,10 +19,16 @@ spring:
       hibernate:
         format_sql: true
 
-
 logging:
   level:
     org.springframework: INFO
 
 app:
-  test-user-id: ${APP_TEST_USER_ID:1}
+  test-user-id: ${TEST_USER_ID}
+  test-user-username: ${TEST_USER_USERNAME}
+
+openai:
+  api-key: ${OPENAI_API_KEY}
+  chat-model: gpt-4o
+  embedding-model: text-embedding-3-small
+  timeout-seconds: 8
