@@ -20,8 +20,7 @@ import java.util.Map;
 @Slf4j
 @Service
 public class ReceiptOcrService {
-
-    private final WebClient openAiWebClient;   // 설정된 WebClient (Authorization/timeout 포함)
+    private final WebClient openAiWebClient;
     private final ObjectMapper om = new ObjectMapper();
 
     private final String model;
@@ -37,18 +36,15 @@ public class ReceiptOcrService {
         this.maxTokens = maxTokens;
     }
 
-    // 공개/프리사인 HTTPS URL을 입력으로 받아 파싱
     public ReceiptDtos.ReceiptParsedResponse parseFromUrl(String imageHttpsUrl) throws Exception {
         long t0 = System.currentTimeMillis();
 
-        // 1) 입력 검증
         URI u = URI.create(imageHttpsUrl);
         if (u.getScheme() == null || !(u.getScheme().equals("http") || u.getScheme().equals("https"))) {
             throw new IllegalArgumentException("imageUrl must be http/https");
         }
         log.info("[Receipt][URL] {}", safe(imageHttpsUrl));
 
-        // 2) 한국어 프롬프트
         String systemPrompt =
                 """
                         너는 영수증 인식기다. 아래 규칙을 반드시 지켜라.
@@ -61,11 +57,9 @@ public class ReceiptOcrService {
                         """;
 
         String userPrompt =
-                "다음 영수증 이미지에서 품목 목록(items: name, quantity, amount)과 총 금액(total)만 추출하라.\n" +
-                        "반드시 스키마에 맞는 JSON만 반환하라. 추가 텍스트는 금지한다.";
+                "다음 영수증 이미지에서 품목 목록(items: name, quantity, amount)과 총 금액(total)만 추출하라. 스키마에 맞는 JSON만 반환.";
 
-        // 3) 구조화 출력 스키마(엄격)
-        String jsonSchema = """
+        String schemaBody = """
                 {
                   "type": "object",
                   "properties": {
@@ -89,31 +83,37 @@ public class ReceiptOcrService {
                 }
                 """.trim();
 
-        // 4) 요청 페이로드(비전 입력 + 구조화 출력)
         Map<String, Object> payload = Map.of(
                 "model", model,
-                "max_tokens", maxTokens,
-                "messages", List.of(
-                        Map.of("role", "system", "content", List.of(
-                                Map.of("type", "text", "text", systemPrompt)
-                        )),
-                        Map.of("role", "user", "content", List.of(
-                                Map.of("type", "text", "text", userPrompt),
-                                Map.of("type", "image_url", "image_url", Map.of(
-                                        "url", imageHttpsUrl
-                                ))
-                        ))
+                "input", List.of(
+                        Map.of(
+                                "role", "system",
+                                "content", List.of(
+                                        Map.of("type", "input_text", "text", systemPrompt)
+                                )
+                        ),
+                        Map.of(
+                                "role", "user",
+                                "content", List.of(
+                                        Map.of("type", "input_text", "text", userPrompt),
+                                        Map.of("type", "input_image", "image_url", imageHttpsUrl)
+                                )
+                        )
                 ),
-                "response_format", Map.of(
-                        "type", "json_schema",
-                        "json_schema", om.readTree(jsonSchema),
-                        "strict", true
-                )
+                "text", Map.of(
+                        "format", Map.of(
+                                "type", "json_schema",
+                                "name", "receipt_schema",
+                                "strict", true,
+                                "schema", om.readTree(schemaBody)
+                        )
+                ),
+                "max_output_tokens", maxTokens
         );
+
 
         log.debug("[Receipt][REQ] model={} imageUrl={} maxTokens={}", model, safe(imageHttpsUrl), maxTokens);
 
-        // 5) OpenAI 호출
         String raw = openAiWebClient.post()
                 .uri("/responses")
                 .bodyValue(payload)
@@ -135,21 +135,40 @@ public class ReceiptOcrService {
             log.warn("[Receipt][RESP] raw is blank or null");
             throw new IllegalStateException("empty model response");
         }
-        log.debug("[Receipt][RESP] raw.head={}", preview(raw, 600));
+        log.debug("[Receipt][RESP] raw.head={}", preview(raw, 800));
 
-        // 6) 응답에서 JSON만 추출
         JsonNode root = om.readTree(raw.getBytes(StandardCharsets.UTF_8));
-        JsonNode contentNode = (root.has("choices") && root.get("choices").isArray() && !root.get("choices").isEmpty())
-                ? root.get("choices").get(0).path("message").path("content")
-                : null;
-        if (contentNode == null || contentNode.isMissingNode() || contentNode.isNull()) {
-            log.error("[Receipt][PARSE] missing choices.message.content | raw.head={}", preview(raw, 600));
-            throw new IllegalStateException("missing choices.message.content");
+
+        JsonNode parsed = root.path("text").path("output_parsed");
+        String json;
+        if (!parsed.isMissingNode() && !parsed.isNull()) {
+            json = om.writeValueAsString(parsed);
+        } else {
+            JsonNode output = root.path("output");
+            String found = null;
+            if (output.isArray()) {
+                outer:
+                for (JsonNode msg : output) {
+                    JsonNode content = msg.path("content");
+                    if (content.isArray()) {
+                        for (JsonNode c : content) {
+                            if ("output_text".equals(c.path("type").asText()) && c.has("text")) {
+                                found = c.get("text").asText();
+                                break outer;
+                            }
+                        }
+                    }
+                }
+            }
+            if (found == null || found.isBlank()) {
+                log.error("[Receipt][PARSE] missing structured text in output | raw.head={}", preview(raw, 800));
+                throw new IllegalStateException("missing structured output");
+            }
+            json = found;
         }
-        String json = contentNode.asText();
+
         log.debug("[Receipt][PARSE] json.head={}", preview(json, 600));
 
-        // 7) 결과 후검증 + 매핑
         JsonNode result = om.readTree(json);
         if (!result.has("items") || !result.has("total")) {
             log.error("[Receipt][VALIDATE] missing fields: items/total");
@@ -185,7 +204,6 @@ public class ReceiptOcrService {
 
     private String safe(String s) {
         if (s == null) return null;
-        // 쿼리 문자열은 길 수 있으니 일부 마스킹
         String trimmed = s.length() > 300 ? s.substring(0, 300) + "...(truncated)" : s;
         return trimmed.replaceAll("[\\r\\n]", " ");
     }
@@ -198,4 +216,5 @@ public class ReceiptOcrService {
         if (head < 0) head = limit;
         return s.substring(0, head) + "...||..." + s.substring(s.length() - tail);
     }
+
 }
