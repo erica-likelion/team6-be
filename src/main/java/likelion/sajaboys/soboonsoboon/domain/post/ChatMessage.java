@@ -20,12 +20,12 @@ public class ChatMessage {
     public enum Role {user, system}
 
     public enum SystemType {
-        MEETING_CREATED,
-        PAYMENT_REQUESTED,
-        GO_TO_PAYMENT,
-        GO_TO_PAYMENT_DONE,
-        PAYMENT_FINISHED_NOTICE,
-        SHOPPING_ENDED
+        MEETING_CREATED, // 약속 생성 (약속이 잡혔어요)
+        PAYMENT_REQUESTED, // 정산 요청
+        GO_TO_PAYMENT, // 정산 하기
+        GO_TO_PAYMENT_DONE, // 정산 완료 (대상자)
+        PAYMENT_FINISHED_NOTICE, // 정산 완료 (요청자)
+        SHOPPING_ENDED // 모임 종료 (후기)
     }
 
     public enum VisibilityScope {ALL, REQUESTER_ONLY, EXCLUDE_REQUESTER, USER_ONLY}
