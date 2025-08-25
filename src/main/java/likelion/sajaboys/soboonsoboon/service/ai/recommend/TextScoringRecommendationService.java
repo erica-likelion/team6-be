@@ -19,19 +19,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static likelion.sajaboys.soboonsoboon.service.ai.recommend.RecommenderPromptBuilder.systemPrompt;
-import static likelion.sajaboys.soboonsoboon.service.ai.recommend.RecommenderPromptBuilder.userPrompt;
+import static likelion.sajaboys.soboonsoboon.service.ai.recommend.RecommenderPromptBuilder.*;
 
 @Service
 @Transactional(readOnly = true)
 public class TextScoringRecommendationService {
+
     private final PostRepository postRepo;
     private final PostMemberRepository memberRepo;
     private final OpenAiChatClient chat;
     private final ObjectMapper om = new ObjectMapper();
     private final int maxTokens;
 
-    // 디버깅용 logger
     private static final Logger log = LoggerFactory.getLogger(TextScoringRecommendationService.class);
 
     public TextScoringRecommendationService(PostRepository postRepo,
@@ -44,68 +43,64 @@ public class TextScoringRecommendationService {
         this.maxTokens = maxTokens;
     }
 
-    // 점수 포함 DTO 반환
-    public List<ScoredPostDto> recommendForUser(Long userId, int limit, int candidateSize) {
+    // 타입 필터 추가 버전
+    public List<ScoredPostDto> recommendForUser(Long userId, int limit, int candidateSize, Post.Type type) {
         // 1) 최근 참여 N개
         var recentIds = memberRepo.findAllByUserIdOrderByJoinedAtDesc(userId).stream()
                 .limit(10).map(PostMember::getPostId).toList();
-        List<Post> recent = recentIds.isEmpty()
-                ? List.of()
-                : postRepo.findAllById(recentIds);
+        List<Post> recent = recentIds.isEmpty() ? List.of() : postRepo.findAllById(recentIds);
 
-        // 2) 후보군(오픈 최신) M개
-        List<Post> candidates = postRepo.findByStatusOrderByCreatedAtDesc(Post.Status.open).stream()
+        // 2) 후보군(오픈 최신) M개 + 타입 필터
+        List<Post> rawCandidates = (type == null)
+                ? postRepo.findByStatusOrderByCreatedAtDesc(Post.Status.open)
+                : postRepo.findByStatusAndTypeOrderByCreatedAtDesc(Post.Status.open, type);
+        List<Post> candidates = rawCandidates.stream()
                 .limit(Math.max(candidateSize, limit))
                 .collect(Collectors.toList());
 
-        // 최근이 전혀 없거나 후보가 비었으면 최신순 fallback (score=0 부여)
+        // fallback: 최근/후보 비었을 때 최신순
         if (recent.isEmpty() || candidates.isEmpty()) {
-            if (recent.isEmpty()) {
-                log.debug("recent is empty, Fallback");
-            }
-            if (candidates.isEmpty()) {
-                log.debug("candidate is empty, Fallback");
-            }
+            if (recent.isEmpty()) log.debug("recent is empty, Fallback");
+            if (candidates.isEmpty()) log.debug("candidate is empty, Fallback");
             return candidates.stream()
                     .limit(limit)
                     .map(p -> new ScoredPostDto(p, 0))
                     .collect(Collectors.toList());
         }
 
-        // 3) 프롬프트 생성
+        // 3) 프롬프트 생성 (+ 타입 힌트)
         String sys = systemPrompt();
         String usr = userPrompt(recent, candidates);
+        usr = appendTypeHint(usr, type);
 
         // 4) 모델 호출 → JSON 점수
         String json = chat.complete(sys, usr, maxTokens);
         List<Scored> scored = parseScores(json);
 
-        // 프롬프트 + 응답 로그
+        // 로그
         logPromptAndResponse(sys, usr, json);
 
         if (scored.isEmpty()) {
-            // 파싱 실패/빈 결과 → 최신순 fallback (score=0)
+            // 파싱 실패/빈 결과 → 최신순 fallback
             return candidates.stream()
                     .limit(limit)
                     .map(p -> new ScoredPostDto(p, 0))
                     .collect(Collectors.toList());
         }
 
-        // 5) 후보와 점수 매칭(없는 id는 무시), 동점이면 최근 createdAt 우선
+        // 5) 후보와 점수 매칭, 동점이면 최근 createdAt 우선
         Map<Long, Post> candMap = candidates.stream().collect(Collectors.toMap(Post::getId, p -> p));
         List<ScoredPost> ranked = new ArrayList<>();
         for (Scored s : scored) {
             Post p = candMap.get(s.id());
             if (p != null) ranked.add(new ScoredPost(p, s.score()));
         }
-
         if (ranked.isEmpty()) {
             return candidates.stream()
                     .limit(limit)
                     .map(p -> new ScoredPostDto(p, 0))
                     .collect(Collectors.toList());
         }
-
         ranked.sort((a, b) -> {
             int c = Integer.compare(b.score, a.score);
             if (c != 0) return c;
@@ -114,12 +109,14 @@ public class TextScoringRecommendationService {
             return cb.compareTo(ca);
         });
 
-        // 6) 상위 limit를 점수 포함 DTO로 반환
+        // 6) 상위 limit 반환
         return ranked.stream()
                 .limit(limit)
                 .map(sp -> new ScoredPostDto(sp.post, sp.score))
                 .collect(Collectors.toList());
     }
+
+    // 이하 기존 메서드/유틸 그대로 (parseScores, clamp, Scored, ScoredPost, logPromptAndResponse, truncate)
 
     private List<Scored> parseScores(String json) {
         if (json == null || json.isBlank()) {
@@ -136,8 +133,7 @@ public class TextScoringRecommendationService {
                         json.substring(0, Math.min(1000, json.length())));
                 return List.of();
             }
-
-            List<Scored> list = om.readValue(json, new TypeReference<>() {
+            var list = om.readValue(json, new TypeReference<List<Scored>>() {
             });
             return list.stream()
                     .filter(s -> s.id != null && s.id > 0)
@@ -150,31 +146,12 @@ public class TextScoringRecommendationService {
         }
     }
 
-
     private int clamp(Integer x) {
         if (x == null) return 0;
         if (x < 0) return 0;
         if (x > 100) return 100;
         return x;
     }
-
-//    public static class Scored {
-//        public Long id;
-//        public Integer score;
-//
-//        public Scored(Long id, Integer score) {
-//            this.id = id;
-//            this.score = score;
-//        }
-//
-//        public Long id() {
-//            return id;
-//        }
-//
-//        public Integer score() {
-//            return score;
-//        }
-//    }
 
     public record Scored(Long id, Integer score) {
         @com.fasterxml.jackson.annotation.JsonCreator
@@ -184,7 +161,6 @@ public class TextScoringRecommendationService {
             this.score = score;
         }
     }
-
 
     private static class ScoredPost {
         final Post post;
@@ -201,9 +177,6 @@ public class TextScoringRecommendationService {
             String sys = truncate(systemPrompt);
             String usr = truncate(userPrompt);
             String rsp = (rawResponse == null) ? "null" : truncate(rawResponse);
-
-            // JSON 형태로 한 줄/다 줄 모두 보기 좋게 출력
-            // 레벨은 상황에 맞춰 debug/info 선택
             log.debug("[Reco][AI] prompt+response\nsystem:\n{}\n\nuser:\n{}\n\nresponse(len={}):\n{}",
                     sys, usr, (rawResponse == null ? 0 : rawResponse.length()), rsp);
         } catch (Exception e) {

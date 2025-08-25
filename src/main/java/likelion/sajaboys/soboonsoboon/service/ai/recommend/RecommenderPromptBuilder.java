@@ -13,7 +13,6 @@ public final class RecommenderPromptBuilder {
     }
 
     public static String systemPrompt() {
-        // JSON 강제, 한국어, 점수 기준 명확화
         return """
                 너는 추천 랭커다. 아래 지시를 반드시 따른다.
                 - 한국어로만 생각하되, 출력은 반드시 JSON만 반환한다.
@@ -34,6 +33,7 @@ public final class RecommenderPromptBuilder {
             if (!body.isBlank()) sb.append(" | ").append(body);
             sb.append("\n");
         }
+
         sb.append("\n후보 모임 목록:\n");
         for (Post p : candidates) {
             sb.append("- id=").append(p.getId()).append(" :: ").append(oneLinePost(p));
@@ -41,6 +41,7 @@ public final class RecommenderPromptBuilder {
             if (!body.isBlank()) sb.append(" | ").append(body);
             sb.append("\n");
         }
+
         sb.append("""
                 \n요청:
                 - 위 후보 각각에 대해 0~100 점수를 매겨 JSON 배열만 출력하라.
@@ -48,5 +49,10 @@ public final class RecommenderPromptBuilder {
                 - 출력 예시: [{"id": 123, "score": 78}, {"id": 456, "score": 65}]
                 """);
         return sb.toString();
+    }
+
+    public static String appendTypeHint(String baseUserPrompt, Post.Type type) {
+        if (type == null) return baseUserPrompt;
+        return baseUserPrompt + "\n요청된 모임 타입: " + type.name() + "\n- 위 타입과의 주제/맥락 유사성이 높을수록 점수를 높여라.\n";
     }
 }
