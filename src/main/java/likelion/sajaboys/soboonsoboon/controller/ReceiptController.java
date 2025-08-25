@@ -1,16 +1,17 @@
 package likelion.sajaboys.soboonsoboon.controller;
 
+import likelion.sajaboys.soboonsoboon.dto.ReceiptParseRequest;
 import likelion.sajaboys.soboonsoboon.dto.ReceiptParsedResponse;
 import likelion.sajaboys.soboonsoboon.service.ai.receipt.ReceiptOcrService;
 import likelion.sajaboys.soboonsoboon.util.ApiSuccess;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URI;
 import java.util.Map;
 
 @RestController
@@ -23,23 +24,32 @@ public class ReceiptController {
         this.receiptOcrService = receiptOcrService;
     }
 
-    @PostMapping(value = "/parse", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> parse(@RequestPart("file") MultipartFile file) {
-        // 입력 검증 실패 → BAD_REQUEST
-        if (file == null || file.isEmpty()
-                || file.getContentType() == null
-                || !(MediaType.IMAGE_JPEG_VALUE.equals(file.getContentType())
-                || MediaType.IMAGE_PNG_VALUE.equals(file.getContentType()))) {
+    // URL 본문(JSON)으로 받는 버전
+    @PostMapping(
+            value = "/parse",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<?> parseByUrl(@RequestBody ReceiptParseRequest req) {
+        // 입력 검증: 빈 값/비 https 방지
+        if (req == null || req.image == null || req.image.isBlank()) {
             return ResponseEntity.badRequest().body(
                     Map.of("success", false, "error", Map.of("code", "BAD_REQUEST", "message", "invalid input"))
             );
         }
-
         try {
-            ReceiptParsedResponse res = receiptOcrService.extractItemsAndTotal(file);
-            return ResponseEntity.ok(ApiSuccess.of(res));
+            // URL 문법 검증(간단)
+            URI u = URI.create(req.image);
+            if (u.getScheme() == null || !(u.getScheme().equals("http") || u.getScheme().equals("https"))) {
+                return ResponseEntity.badRequest().body(
+                        Map.of("success", false, "error", Map.of("code", "BAD_REQUEST", "message", "image must be http/https"))
+                );
+            }
+
+            ReceiptParsedResponse data = receiptOcrService.parseFromUrl(req.image);
+            return ResponseEntity.ok(ApiSuccess.of(data));
         } catch (Exception e) {
-            // 서버 처리 실패 → INTERNAL_ERROR
+            // 내부 처리 실패는 통일
             return ResponseEntity.status(500).body(
                     Map.of("success", false, "error", Map.of("code", "INTERNAL_ERROR", "message", "receipt recognition failed"))
             );

@@ -22,7 +22,7 @@ spring:
 logging:
   level:
     org.springframework: INFO
-    likelion.sajaboys.soboonsoboon.service.reco: DEBUG
+    likelion.sajaboys.soboonsoboon.service.ai: DEBUG
 
 app:
   test-user-id: ${TEST_USER_ID}
@@ -30,5 +30,5 @@ app:
 openai:
   api-key: ${OPENAI_API_KEY}
   model: gpt-4o
-  timeout-seconds: 8
+  timeout-seconds: 30
   max-tokens: 600
