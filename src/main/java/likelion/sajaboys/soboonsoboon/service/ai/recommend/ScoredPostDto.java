@@ -1,4 +1,4 @@
-package likelion.sajaboys.soboonsoboon.service.reco;
+package likelion.sajaboys.soboonsoboon.service.ai.recommend;
 
 import likelion.sajaboys.soboonsoboon.domain.post.Post;
 

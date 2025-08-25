@@ -1,6 +1,6 @@
 package likelion.sajaboys.soboonsoboon.service;
 
-import likelion.sajaboys.soboonsoboon.service.ai.MessagePostedEvent;
+import likelion.sajaboys.soboonsoboon.service.ai.reply.MessagePostedEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 

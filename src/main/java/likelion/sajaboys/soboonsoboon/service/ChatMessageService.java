@@ -3,7 +3,7 @@ package likelion.sajaboys.soboonsoboon.service;
 import likelion.sajaboys.soboonsoboon.domain.post.ChatMessage;
 import likelion.sajaboys.soboonsoboon.domain.post.Post;
 import likelion.sajaboys.soboonsoboon.repository.ChatMessageRepository;
-import likelion.sajaboys.soboonsoboon.service.ai.MessagePostedEvent;
+import likelion.sajaboys.soboonsoboon.service.ai.reply.MessagePostedEvent;
 import likelion.sajaboys.soboonsoboon.util.ApiException;
 import likelion.sajaboys.soboonsoboon.util.ErrorCode;
 import org.springframework.stereotype.Service;

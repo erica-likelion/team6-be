@@ -1,4 +1,4 @@
-package likelion.sajaboys.soboonsoboon.service.ai;
+package likelion.sajaboys.soboonsoboon.service.ai.reply;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,7 +16,7 @@ public class OpenAiChatClient {
     private final String model;
 
     public OpenAiChatClient(WebClient openAiWebClient,
-                            @Value("${openai.chat-model}") String model) {
+                            @Value("${openai.model}") String model) {
         this.client = openAiWebClient;
         this.model = model;
     }

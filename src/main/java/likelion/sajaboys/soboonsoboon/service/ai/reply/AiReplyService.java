@@ -1,4 +1,4 @@
-package likelion.sajaboys.soboonsoboon.service.ai;
+package likelion.sajaboys.soboonsoboon.service.ai.reply;
 
 import likelion.sajaboys.soboonsoboon.domain.post.ChatMessage;
 import likelion.sajaboys.soboonsoboon.domain.post.Post;

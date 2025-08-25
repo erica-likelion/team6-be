@@ -29,6 +29,6 @@ app:
 
 openai:
   api-key: ${OPENAI_API_KEY}
-  chat-model: gpt-4o
+  model: gpt-4o
   timeout-seconds: 8
   max-tokens: 600

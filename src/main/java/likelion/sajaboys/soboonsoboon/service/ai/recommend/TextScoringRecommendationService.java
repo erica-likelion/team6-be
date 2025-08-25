@@ -1,4 +1,4 @@
-package likelion.sajaboys.soboonsoboon.service.reco;
+package likelion.sajaboys.soboonsoboon.service.ai.recommend;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,7 +6,7 @@ import likelion.sajaboys.soboonsoboon.domain.post.Post;
 import likelion.sajaboys.soboonsoboon.domain.post.PostMember;
 import likelion.sajaboys.soboonsoboon.repository.PostMemberRepository;
 import likelion.sajaboys.soboonsoboon.repository.PostRepository;
-import likelion.sajaboys.soboonsoboon.service.ai.OpenAiChatClient;
+import likelion.sajaboys.soboonsoboon.service.ai.reply.OpenAiChatClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static likelion.sajaboys.soboonsoboon.service.reco.RecommenderPromptBuilder.systemPrompt;
-import static likelion.sajaboys.soboonsoboon.service.reco.RecommenderPromptBuilder.userPrompt;
+import static likelion.sajaboys.soboonsoboon.service.ai.recommend.RecommenderPromptBuilder.systemPrompt;
+import static likelion.sajaboys.soboonsoboon.service.ai.recommend.RecommenderPromptBuilder.userPrompt;
 
 @Service
 @Transactional(readOnly = true)
