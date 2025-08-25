@@ -2,8 +2,8 @@ package likelion.sajaboys.soboonsoboon.service.ai.receipt;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import likelion.sajaboys.soboonsoboon.dto.ReceiptParsedResponse;
-import likelion.sajaboys.soboonsoboon.dto.ReceiptParsedResponse.Item;
+import likelion.sajaboys.soboonsoboon.dto.ReceiptDtos;
+import likelion.sajaboys.soboonsoboon.dto.ReceiptDtos.Item;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
@@ -38,7 +38,7 @@ public class ReceiptOcrService {
     }
 
     // 공개/프리사인 HTTPS URL을 입력으로 받아 파싱
-    public ReceiptParsedResponse parseFromUrl(String imageHttpsUrl) throws Exception {
+    public ReceiptDtos.ReceiptParsedResponse parseFromUrl(String imageHttpsUrl) throws Exception {
         long t0 = System.currentTimeMillis();
 
         // 1) 입력 검증
@@ -180,7 +180,7 @@ public class ReceiptOcrService {
 
         long done = System.currentTimeMillis() - t0;
         log.info("[Receipt][OK] items={} total={} elapsed={}ms", items.size(), total, done);
-        return new ReceiptParsedResponse(items, total);
+        return new ReceiptDtos.ReceiptParsedResponse(items, total);
     }
 
     private String safe(String s) {

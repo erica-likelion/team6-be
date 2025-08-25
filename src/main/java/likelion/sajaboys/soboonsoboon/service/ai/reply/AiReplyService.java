@@ -1,8 +1,8 @@
 package likelion.sajaboys.soboonsoboon.service.ai.reply;
 
-import likelion.sajaboys.soboonsoboon.domain.post.ChatMessage;
-import likelion.sajaboys.soboonsoboon.domain.post.Post;
-import likelion.sajaboys.soboonsoboon.domain.post.PostMember;
+import likelion.sajaboys.soboonsoboon.domain.ChatMessage;
+import likelion.sajaboys.soboonsoboon.domain.Post;
+import likelion.sajaboys.soboonsoboon.domain.PostMember;
 import likelion.sajaboys.soboonsoboon.repository.ChatMessageRepository;
 import likelion.sajaboys.soboonsoboon.service.PostMemberService;
 import likelion.sajaboys.soboonsoboon.service.PostService;

@@ -1,6 +1,6 @@
 package likelion.sajaboys.soboonsoboon.controller;
 
-import likelion.sajaboys.soboonsoboon.domain.post.Post;
+import likelion.sajaboys.soboonsoboon.domain.Post;
 import likelion.sajaboys.soboonsoboon.service.ai.recommend.TextScoringRecommendationService;
 import likelion.sajaboys.soboonsoboon.util.CurrentUser;
 import org.springframework.http.ResponseEntity;

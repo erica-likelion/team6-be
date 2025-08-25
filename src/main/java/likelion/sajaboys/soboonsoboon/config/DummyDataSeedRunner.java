@@ -1,10 +1,10 @@
 package likelion.sajaboys.soboonsoboon.config;
 
-import likelion.sajaboys.soboonsoboon.domain.post.ChatMessage;
-import likelion.sajaboys.soboonsoboon.domain.post.Meeting;
-import likelion.sajaboys.soboonsoboon.domain.post.Post;
-import likelion.sajaboys.soboonsoboon.domain.post.PostMember;
-import likelion.sajaboys.soboonsoboon.domain.user.User;
+import likelion.sajaboys.soboonsoboon.domain.ChatMessage;
+import likelion.sajaboys.soboonsoboon.domain.Meeting;
+import likelion.sajaboys.soboonsoboon.domain.Post;
+import likelion.sajaboys.soboonsoboon.domain.PostMember;
+import likelion.sajaboys.soboonsoboon.domain.User;
 import likelion.sajaboys.soboonsoboon.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

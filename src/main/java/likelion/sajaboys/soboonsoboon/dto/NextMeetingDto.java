@@ -1,6 +1,6 @@
 package likelion.sajaboys.soboonsoboon.dto;
 
-import likelion.sajaboys.soboonsoboon.domain.post.Post;
+import likelion.sajaboys.soboonsoboon.domain.Post;
 
 import java.time.Instant;
 

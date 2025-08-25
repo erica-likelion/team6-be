@@ -2,7 +2,7 @@ package likelion.sajaboys.soboonsoboon.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import likelion.sajaboys.soboonsoboon.domain.post.Post;
+import likelion.sajaboys.soboonsoboon.domain.Post;
 import likelion.sajaboys.soboonsoboon.repository.PostRepository;
 import likelion.sajaboys.soboonsoboon.util.ApiException;
 import likelion.sajaboys.soboonsoboon.util.ErrorCode;

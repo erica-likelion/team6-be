@@ -1,7 +1,7 @@
 package likelion.sajaboys.soboonsoboon.service;
 
-import likelion.sajaboys.soboonsoboon.domain.post.Post;
-import likelion.sajaboys.soboonsoboon.domain.post.PostMember;
+import likelion.sajaboys.soboonsoboon.domain.Post;
+import likelion.sajaboys.soboonsoboon.domain.PostMember;
 import likelion.sajaboys.soboonsoboon.repository.PostMemberRepository;
 import likelion.sajaboys.soboonsoboon.repository.PostRepository;
 import likelion.sajaboys.soboonsoboon.util.ApiException;

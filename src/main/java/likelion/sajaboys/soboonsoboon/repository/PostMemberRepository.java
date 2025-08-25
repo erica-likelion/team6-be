@@ -1,7 +1,7 @@
 package likelion.sajaboys.soboonsoboon.repository;
 
-import likelion.sajaboys.soboonsoboon.domain.post.Post;
-import likelion.sajaboys.soboonsoboon.domain.post.PostMember;
+import likelion.sajaboys.soboonsoboon.domain.Post;
+import likelion.sajaboys.soboonsoboon.domain.PostMember;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

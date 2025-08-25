@@ -1,7 +1,7 @@
 package likelion.sajaboys.soboonsoboon.controller;
 
 import jakarta.validation.Valid;
-import likelion.sajaboys.soboonsoboon.domain.user.User;
+import likelion.sajaboys.soboonsoboon.domain.User;
 import likelion.sajaboys.soboonsoboon.dto.UserDtos;
 import likelion.sajaboys.soboonsoboon.repository.UserRepository;
 import likelion.sajaboys.soboonsoboon.util.ApiException;

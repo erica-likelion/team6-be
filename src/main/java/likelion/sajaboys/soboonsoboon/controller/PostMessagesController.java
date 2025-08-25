@@ -1,8 +1,7 @@
 package likelion.sajaboys.soboonsoboon.controller;
 
-import likelion.sajaboys.soboonsoboon.domain.post.ChatMessage;
-import likelion.sajaboys.soboonsoboon.dto.MessageResponse;
-import likelion.sajaboys.soboonsoboon.dto.MessagesPage;
+import likelion.sajaboys.soboonsoboon.domain.ChatMessage;
+import likelion.sajaboys.soboonsoboon.dto.ChatMessageDtos;
 import likelion.sajaboys.soboonsoboon.service.ChatMessageService;
 import likelion.sajaboys.soboonsoboon.util.*;
 import org.springframework.http.HttpStatus;
@@ -25,7 +24,7 @@ public class PostMessagesController {
 
     // 1) 메시지 전송
     @PostMapping
-    public ResponseEntity<ApiSuccess<MessageResponse>> send(
+    public ResponseEntity<ApiSuccess<ChatMessageDtos.MessageResponse>> send(
             @PathVariable Long postId,
             @RequestBody Map<String, String> body
     ) {
@@ -38,7 +37,7 @@ public class PostMessagesController {
 
     // 2) 메시지 목록
     @GetMapping
-    public ApiSuccess<MessagesPage> list(
+    public ApiSuccess<ChatMessageDtos.MessagesPage> list(
             @PathVariable Long postId,
             @RequestParam(required = false) Integer limit,
             @RequestParam(required = false) Long beforeId,
@@ -75,7 +74,7 @@ public class PostMessagesController {
 
         var items = list.stream().map(MapperUtil::toMessageResponse).toList();
         Long nextCursor = items.isEmpty() ? null : items.get(0).id() - 1;
-        return ApiSuccess.of(new MessagesPage(items, nextCursor));
+        return ApiSuccess.of(new ChatMessageDtos.MessagesPage(items, nextCursor));
     }
 
     private int normalizeLimit(Integer limit) {

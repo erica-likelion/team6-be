@@ -1,6 +1,6 @@
 package likelion.sajaboys.soboonsoboon.repository;
 
-import likelion.sajaboys.soboonsoboon.domain.post.Meeting;
+import likelion.sajaboys.soboonsoboon.domain.Meeting;
 import likelion.sajaboys.soboonsoboon.dto.NextMeetingDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

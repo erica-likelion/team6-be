@@ -1,6 +1,6 @@
 package likelion.sajaboys.soboonsoboon.controller;
 
-import likelion.sajaboys.soboonsoboon.domain.post.Post;
+import likelion.sajaboys.soboonsoboon.domain.Post;
 import likelion.sajaboys.soboonsoboon.dto.PostDtos;
 import likelion.sajaboys.soboonsoboon.repository.PostRepository;
 import likelion.sajaboys.soboonsoboon.util.ApiSuccess;

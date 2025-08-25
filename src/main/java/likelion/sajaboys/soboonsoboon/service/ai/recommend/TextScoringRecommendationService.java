@@ -2,8 +2,8 @@ package likelion.sajaboys.soboonsoboon.service.ai.recommend;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import likelion.sajaboys.soboonsoboon.domain.post.Post;
-import likelion.sajaboys.soboonsoboon.domain.post.PostMember;
+import likelion.sajaboys.soboonsoboon.domain.Post;
+import likelion.sajaboys.soboonsoboon.domain.PostMember;
 import likelion.sajaboys.soboonsoboon.repository.PostMemberRepository;
 import likelion.sajaboys.soboonsoboon.repository.PostRepository;
 import likelion.sajaboys.soboonsoboon.service.ai.reply.OpenAiChatClient;

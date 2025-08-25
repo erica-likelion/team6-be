@@ -2,8 +2,8 @@ package likelion.sajaboys.soboonsoboon.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import likelion.sajaboys.soboonsoboon.domain.post.ChatMessage;
-import likelion.sajaboys.soboonsoboon.dto.MessageResponse;
+import likelion.sajaboys.soboonsoboon.domain.ChatMessage;
+import likelion.sajaboys.soboonsoboon.dto.ChatMessageDtos;
 
 import java.util.List;
 
@@ -15,8 +15,8 @@ public final class MapperUtil {
     }
 
     // ChatMessage -> MessageResponse
-    public static MessageResponse toMessageResponse(ChatMessage m) {
-        return new MessageResponse(
+    public static ChatMessageDtos.MessageResponse toMessageResponse(ChatMessage m) {
+        return new ChatMessageDtos.MessageResponse(
                 m.getId(),
                 m.getPostId(),
                 m.getSenderUserId(),

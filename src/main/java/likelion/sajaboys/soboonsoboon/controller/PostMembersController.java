@@ -1,7 +1,7 @@
 package likelion.sajaboys.soboonsoboon.controller;
 
-import likelion.sajaboys.soboonsoboon.domain.post.PostMember;
-import likelion.sajaboys.soboonsoboon.dto.MemberDtos;
+import likelion.sajaboys.soboonsoboon.domain.PostMember;
+import likelion.sajaboys.soboonsoboon.dto.PostMemberDtos;
 import likelion.sajaboys.soboonsoboon.service.PostMemberService;
 import likelion.sajaboys.soboonsoboon.util.ApiSuccess;
 import likelion.sajaboys.soboonsoboon.util.CurrentUser;
@@ -20,12 +20,12 @@ public class PostMembersController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiSuccess<MemberDtos.JoinResponse>> join(@PathVariable Long postId) {
+    public ResponseEntity<ApiSuccess<PostMemberDtos.JoinResponse>> join(@PathVariable Long postId) {
         Long userId = CurrentUser.get();
 
         PostMember m = memberService.join(postId, userId);
 
-        var res = new MemberDtos.JoinResponse(m.getPostId(), m.getUserId(), m.getRole().name());
+        var res = new PostMemberDtos.JoinResponse(m.getPostId(), m.getUserId(), m.getRole().name());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiSuccess.of(res));
     }
 

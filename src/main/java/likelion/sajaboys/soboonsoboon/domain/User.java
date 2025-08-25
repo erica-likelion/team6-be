@@ -1,4 +1,4 @@
-package likelion.sajaboys.soboonsoboon.domain.user;
+package likelion.sajaboys.soboonsoboon.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

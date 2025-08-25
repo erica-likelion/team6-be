@@ -1,6 +1,6 @@
 package likelion.sajaboys.soboonsoboon.dto;
 
-public class MemberDtos {
+public class PostMemberDtos {
     public record JoinResponse(Long postId, Long userId, String role) {
     }
 }

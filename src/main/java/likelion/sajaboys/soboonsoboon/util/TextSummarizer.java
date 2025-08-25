@@ -1,6 +1,6 @@
 package likelion.sajaboys.soboonsoboon.util;
 
-import likelion.sajaboys.soboonsoboon.domain.post.Post;
+import likelion.sajaboys.soboonsoboon.domain.Post;
 
 public final class TextSummarizer {
 
