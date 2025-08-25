@@ -29,8 +29,7 @@ public class PostMemberService {
         }
 
         // Post 읽기 + 동시성 가드
-        Post post = postRepo.findById(postId)
-                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "post not found"));
+        Post post = postRepo.findById(postId).orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "post not found"));
 
         // 닫힘 / 정원 검사
         if (post.isClosed()) {
@@ -47,7 +46,7 @@ public class PostMemberService {
                 .build();
         PostMember saved = memberRepo.save(m);
 
-        // 현재 인원 +1 (동일 트랜잭션)
+        // 현재 인원 +1
         post.increaseMember();
         postRepo.save(post);
 
@@ -65,6 +64,8 @@ public class PostMemberService {
         memberRepo.delete(me);
 
         Post post = postRepo.findById(postId).orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "post not found"));
+
+        // 현재 인원 -1
         post.decreaseMember();
         postRepo.save(post);
     }
